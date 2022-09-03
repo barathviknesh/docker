@@ -1,0 +1,307 @@
+docker pull mongo
+docker pull mongo-express
+
+
+docker network ls
+
+docker network create mongo-network
+
+docker run mongo
+
+--------------------------------------------------------------------------+
+
+docker run -d \
+-p 27017:27017 \
+-e MONGO_INITDB_ROOT_USERADMIN=admin \
+-e MONGO_INITDB_ROOT_PASSWORD=password \
+--name mongodb \
+--net mongo-network \
+mongo
+
+output : *********************** (id)
+
+docker log ********** (id)
+
+---------------------------------------------------------------------------+
+
+
+docker run -d \
+-p 8081:8081 \
+-e ME_CONFIG_MONGODB_ADMINUSERNAME=admin \
+-e ME_CONFIG_MONGODB_ADMINPASSWORD=password \
+--name mongo-express \
+--net mongo-network \
+-e ME_CONFIG_MONGODB_SERVER=mongodb \
+mongo-express
+
+output : *********************** (id)
+
+docker log ********** (id)
+
+-----------------------------------------------------------------------------+
+
+check localhost 8081 in chrome 
+
+docker ps
+
+docker logs
+
+docker logs ***** | tail
+
+-----------------------------------------------------------------------------+
+
+Docker Compose
+
+create a file mongo.yaml :
+
+
+version: '3'
+service:
+  mongoDB:
+    image:
+    ports:
+    -27017:27017
+    environment:
+    - MONGO_INITDB_ROOT_USERADMIN=admin
+    - MONGO_INITDB_ROOT_PASSWORD=password
+  mongo-express:
+    image: mongo-express
+    ports:
+    -8080:8081
+    environment:
+    - ME_CONFIG_MONGODB_ADMINUSERNAME=admin
+    - ME_CONFIG_MONGODB_ADMINPASSWORD=password
+    - ME_CONFIG_MONGODB_SERVER=mongodb
+
+-------------------------------------------------------------------------------+
+
+docker-compose -f mongo.yaml up
+
+-f file
+
+docker ps
+
+docker create it network call myapp_mongdb_1 name by docker
+
+docker network ls
+
+
+docker-compose -f mongo.yaml down
+
+when it is removing container also remove its network
+
+--------------------------------------------------------------------------------+
+
+create Dockerfile -- for node app
+
+FROM node:13-alpine
+
+ENV MONGO_DB_USERNAME=admin \
+    MONGO_DB_PWD=password
+
+RUN mkdir -p /home/app
+
+COPY ./app /home/app
+
+CMD ["node","/home/app/server.js"] 
+
+--------------------------------------------------------------------------------+
+
+How to build docker image out of it dockerfile
+
+docker build -t my-app:1.0 .
+
+                           ^
+                   NOTE: this is directory path since we are in root directory we put dot
+
+
+output successfully built ********
+
+
+----------------------------------------------------------------------------------+
+
+docker images
+
+for delete 
+
+docker rmi *******
+
+if cant able to delet due to runing in cntainer
+
+first delet container
+
+docker rm ****** <---delete container
+
+docker rmi ****** <--- delete image
+
+to run 
+
+docker run my-app:1.0
+
+docker logs *****
+
+enter the application to get terminal
+
+-it - interactive terminal
+
+
+
+docker exec -it ***** /bin/bash or /bin/sh
+
+--now
+# ls
+
+** *** ** * *** **** ** **** ***
+** *** *** *** *** ** *** *** ***
+
+# ls/home/app
+
+we can see the file in the virtual file system (node project files)
+
+
+
+docker stop **** <--container id
+
+docker rm *****
+
+docker rmi ***
+
+now execute build cmd
+
+after 
+
+docker run my-app:1.0
+
+
+-----------------------------------------------------------------------------------------+
+
+DOCKER PRIVATE REPOSITORY
+
+AWS ECR
+
+...
+...
+...
+...
+...
+
+------------------------------------------------------------------------------------------+
+
+
+update mongo.yaml file
+
+
+
+version: '3'
+service:
+  my-app:
+    image: aws address
+    ports:
+    -3000:3000  
+  mongoDB:
+    image:
+    ports:
+    -27017:27017
+    environment:
+    - MONGO_INITDB_ROOT_USERADMIN=admin
+    - MONGO_INITDB_ROOT_PASSWORD=password
+  mongo-express:
+    image: mongo-express
+    ports:
+    -8080:8081
+    environment:
+    - ME_CONFIG_MONGODB_ADMINUSERNAME=admin
+    - ME_CONFIG_MONGODB_ADMINPASSWORD=password
+    - ME_CONFIG_MONGODB_SERVER=mongodb
+
+
+-------------------------------------------------------------------------------------------
+
+now run up cmd
+
+--------------------------------------------------------------------------------------------
+
+
+DOCKER VOLUMES
+
+3 types
+
+
+
+add more for vloume in yaml file
+
+
+
+
+version: '3'
+service:
+  my-app:
+    image: aws address
+    ports:
+    -3000:3000  
+  mongoDB:
+    image:
+    ports:
+    -27017:27017
+    environment:
+    - MONGO_INITDB_ROOT_USERADMIN=admin
+    - MONGO_INITDB_ROOT_PASSWORD=password
+    volumes:
+       - mongo-data:/data/db
+  mongo-express:
+    image: mongo-express
+    ports:
+    -8080:8081
+    environment:
+    - ME_CONFIG_MONGODB_ADMINUSERNAME=admin
+    - ME_CONFIG_MONGODB_ADMINPASSWORD=password
+    - ME_CONFIG_MONGODB_SERVER=mongodb
+    volumes:
+        - mongo-data:/data/db
+volumes:
+ mongo-data:
+   driver:local
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
